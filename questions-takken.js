@@ -1534,8 +1534,8 @@ const QUESTIONS_TAKKEN = [
     explanation: "登録の移転は「できる」任意規定であり、義務ではありません。申請は現在登録している都道府県知事を経由して行います。移転後も宅地建物取引士証の有効期間はそのまま引き継がれるため、移転中に業務が停止されることはありません。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -2586,15 +2586,15 @@ const QUESTIONS_TAKKEN = [
     options: [
       "宅建業者は、その事務所ごとに業務に関する帳簿を備え、取引のあった都度、所定の事項を記載しなければならない。",
       "帳簿は各事業年度の末日をもって閉鎖し、その後5年間保存しなければならないが、従業者名簿も最終の記載をした日から5年間保存しなければならない。",
-      "従業者名簿には、従業者の氏名・住所・生年月日・宅地建物取引士かどうかの別等を記載しなければならない。",
+      "従業者名簿には、従業者の氏名・従業者証明書の番号・主たる職務内容・宅地建物取引士かどうかの別・当該事務所の従業者となった年月日等を記載しなければならない。",
       "取引の関係者から従業者名簿の閲覧請求があった場合、正当な理由がある場合を除き、拒否することはできない。"
     ],
     correct: 1,
     explanation: "帳簿の保存期間は各事業年度末日から5年間（宅建業者自らが売主となった新築住宅の場合は10年間）ですが、従業者名簿の保存期間は最終の記載をした日から10年間です（宅建業法施行規則17条の2）。選択肢2の「名簿も5年」は誤りです。選択肢1・3・4はいずれも正しい記述です。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "medium",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-06-01"
   },
