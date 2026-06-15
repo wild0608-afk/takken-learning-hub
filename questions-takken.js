@@ -137,8 +137,8 @@ const QUESTIONS_TAKKEN = [
     explanation: "宅地建物取引士試験に合格した日から「1年以内」に取引士証の交付を受けようとする場合は、法定講習の受講が免除されます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Gemini",
     lawUpdatedAt: "2026-05-24"
   },
@@ -1732,8 +1732,8 @@ const QUESTIONS_TAKKEN = [
     explanation: "宅地建物取引士証の有効期間は5年です（法22条の2第1項）。更新するためには、交付申請前6か月以内に都道府県知事が指定した機関が行う法定講習を受講する必要があります（法22条の2第2項）。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "medium",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-29"
   },
