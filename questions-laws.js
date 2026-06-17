@@ -703,8 +703,8 @@ const QUESTIONS_LAWS = [
     explanation: "前面道路幅員が12m未満の場合、道路幅員（m）に住居系は4/10（その他は6/10）を乗じた値と指定容積率を比較し、小さい方が適用されます。建物内の住宅用途の駐車場は延べ面積の1/5まで容積率算定から除外できます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -721,11 +721,11 @@ const QUESTIONS_LAWS = [
       "道路斜線制限は、建築物が前面道路の採光・通風等を妨げないよう、前面道路の反対側の境界線を基点に一定の勾配を超えない高さに制限するものである。"
     ],
     correct: 3,
-    explanation: "道路斜線制限は全用途地域・無指定区域に適用されますが、北側斜線制限は低層・中高層住居系地域のみ、日影規制は商業・工業・工業専用地域には適用されません。第一種低層住居専用地域には絶対高さ制限があり、隣地斜線制限は適用されません。",
+    explanation: "道路斜線制限は全用途地域・無指定区域に適用されますが、北側斜線制限は低層・中高層住居系地域のみ、日影規制は商業・工業・工業専用地域では原則として対象区域に指定されません。第一種低層住居専用地域には絶対高さ制限があり、隣地斜線制限は適用されません。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -742,11 +742,11 @@ const QUESTIONS_LAWS = [
       "農地の転用を目的とした売買は、農地法の規制対象外であり、届出も許可も不要である。"
     ],
     correct: 1,
-    explanation: "農地を農地以外に転用する目的で権利移動（売買・贈与等）する場合は農地法5条の許可が必要です。農地を農地のままで権利移動する場合は3条許可が必要です。市街化区域内の農地は農業委員会への事前届出で足りる場合があります。",
+    explanation: "農地を農地以外に転用する目的で権利移動（売買・贈与等）する場合は農地法5条の許可が必要です。農地を農地のままで権利移動する場合は3条許可が必要です。市街化区域内で転用又は転用目的の権利移動をする場合は、あらかじめ農業委員会へ届け出れば足りる場合があります。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -766,8 +766,8 @@ const QUESTIONS_LAWS = [
     explanation: "土地区画整理事業の施行者は多岐にわたります。仮換地指定後は仮換地のみ使用・収益できます（従前の宅地は使用不可）。換地の権利確定は公告日の翌日であり、清算金は権利の過不足に応じて徴収または交付されますが、必ずしも全員が受け取れるわけではありません。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -787,8 +787,8 @@ const QUESTIONS_LAWS = [
     explanation: "事後届出は、土地売買等の契約締結後2週間以内に、権利取得者が土地の所在する市町村長を経由して都道府県知事に行います（国土利用計画法23条1項）。届出が必要な面積は市街化区域2,000㎡以上、市街化調整区域等5,000㎡以上、都市計画区域外10,000㎡以上です。勧告に従わない場合には氏名・勧告内容の公表があります（同法26条）。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -809,8 +809,8 @@ const QUESTIONS_LAWS = [
     explanation: "選択肢3が正しい記述です。開発行為が完了したときは都道府県知事への届出が必要で、知事は検査を行い、検査済証を交付した後に工事完了の公告を行います（都市計画法36条）。公告前は開発区域内での建築等が制限されます。選択肢2は誤りで、開発許可を受けた者から開発区域内の土地所有権等を取得した特定承継人が地位を承継するには、都道府県知事の承認が必要です（同法45条）。なお、相続人その他の一般承継人は当然に地位を承継します（同法44条）。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -831,8 +831,8 @@ const QUESTIONS_LAWS = [
     explanation: "接道義務は建築基準法上の道路に2メートル以上接することです。幅員4メートル未満でも2項道路として認められる場合があります。セットバック部分は敷地面積に算入できません。接道義務の例外は建築審査会の同意を得た許可が必要です。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -844,7 +844,7 @@ const QUESTIONS_LAWS = [
     tags: ["用途地域", "用途制限", "工業専用地域"],
     question: "建築基準法における用途地域内の用途制限に関する次の記述のうち、正しいものはどれか。",
     options: [
-      "第一種低層住居専用地域内では、コンビニエンスストアを建築することができない。",
+      "第一種低層住居専用地域内では、住宅を兼ね、床面積等の要件を満たす小規模店舗であっても一切建築できない。",
       "第一種住居地域内では、床面積の合計が3,000平方メートルを超える大規模な店舗を建築することができる。",
       "近隣商業地域内では、住宅を建築することができない。",
       "工業専用地域内では、住宅を建築することができない。"
@@ -853,8 +853,8 @@ const QUESTIONS_LAWS = [
     explanation: "工業専用地域では住宅の建築が禁止されています。第一種低層住居専用地域では小規模な店舗（兼用住宅等）は可能な場合があります。第一種住居地域の大規模店舗は制限されます。近隣商業地域では住宅の建築は可能です。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -867,16 +867,16 @@ const QUESTIONS_LAWS = [
     question: "建築基準法における防火地域・準防火地域に関する次の記述のうち、正しいものはどれか。",
     options: [
       "防火地域内では、すべての建築物を耐火建築物としなければならない。",
-      "準防火地域内では、地上4階以上または延べ面積1,500平方メートル超の建築物は耐火建築物としなければならない。",
-      "防火地域と準防火地域にわたる敷地に建築物を建てる場合、その建築物全体に防火地域の規制が適用される。",
+      "準防火地域内では、すべての建築物を耐火建築物としなければならない。",
+      "防火地域と準防火地域にわたる敷地に建築物を建てる場合、その建築物全体に原則として防火地域の規制が適用される。",
       "準防火地域内の木造建築物は、すべて建築が禁止されている。"
     ],
     correct: 2,
     explanation: "防火・準防火地域にわたる敷地では、厳しい方（防火地域）の規定が建築物全体に適用されます。防火地域でも階数・面積によっては準耐火建築物で可能な場合があります。準防火地域で木造建築が全面禁止ではありません。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -894,11 +894,11 @@ const QUESTIONS_LAWS = [
       "宅地造成等工事規制区域内にある宅地の所有者・管理者は、崖崩れ等が生じないよう安全を保つ措置を講じる義務を負わない。"
     ],
     correct: 2,
-    explanation: "切土で高さ2メートルを超える崖を生じさせる宅地造成は許可が必要です。規制区域の指定は都道府県知事（または政令市長等）が行います。許可に面積基準による免除はありません。宅地の所有者・管理者は安全維持義務を負います。",
+    explanation: "切土で高さ2メートルを超える崖を生じさせる宅地造成は許可が必要です。規制区域の指定は都道府県知事（または政令市長等）が行います。面積500㎡未満であっても、崖を生じる等の基準に該当すれば許可が必要であり、面積のみで一律に許可不要となるわけではありません。宅地の所有者・管理者は安全維持義務を負います。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -911,7 +911,7 @@ const QUESTIONS_LAWS = [
     question: "土地区画整理法に関する次の記述のうち、正しいものはどれか。",
     options: [
       "仮換地の指定があった場合、従前の宅地の所有者は仮換地の使用・収益権を取得するが、従前地の所有権は移転しない。",
-      "換地処分の公告があった翌日から、換地は従前地に代わるものとして確定する。",
+      "換地処分の公告があった日から、換地は従前地に代わるものとして確定する。",
       "土地区画整理事業の施行者は、個人施行者、土地区画整理組合、区画整理会社、地方公共団体および国土交通大臣の5種類に限られる。",
       "仮換地が指定されると、従前の宅地に関する権利は消滅し、仮換地について登記を行う必要がある。"
     ],
@@ -919,8 +919,8 @@ const QUESTIONS_LAWS = [
     explanation: "仮換地指定により、施行者や指定を受けた者は仮換地の使用・収益権を取得しますが、従前地の所有権は換地処分の公告まで移転しません。換地は公告の翌日に確定します。施行者には国土交通大臣のほか都道府県・市町村等も含まれます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -935,14 +935,14 @@ const QUESTIONS_LAWS = [
       "木造2階建て・延べ面積100平方メートルの一戸建て住宅の新築には、建築確認は不要である。",
       "建築確認を受けた建築物が完成した後は、建築主事または指定確認検査機関の検査を受けなくても使用を開始することができる。",
       "建築確認は、建築主事または指定確認検査機関に申請し、確認済証の交付を受けた後でなければ工事を開始することができない。",
-      "大規模建築物（特殊建築物・大規模建築物）の建築確認に対して不服がある場合、直接行政訴訟を提起することができる。"
+      "大規模建築物（特殊建築物・大規模建築物）の建築確認に対して不服がある場合、建築審査会の裁決を経なければ訴えを提起できない。"
     ],
     correct: 2,
-    explanation: "建築確認済証の交付を受けた後でなければ工事着工できません。木造2階建て・延べ面積100平方メートルでも確認申請が必要な場合があります。完成後は検査済証の交付を受けてから使用開始が原則です。建築確認への不服は建築審査会への審査請求が先です。",
+    explanation: "建築確認済証の交付を受けた後でなければ工事着工できません。木造2階建て・延べ面積100平方メートルでも確認申請が必要な場合があります。完成後は検査済証の交付を受けてから使用開始が原則です。建築確認の処分に不服がある場合は建築審査会へ審査請求ができますが、その裁決を経なければ訴訟を提起できないわけではありません。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -963,8 +963,8 @@ const QUESTIONS_LAWS = [
     explanation: "地区計画区域内での建築等の行為には、原則として市町村長への届出（行為着手の30日前まで）が必要です。地区計画は市街化調整区域にも定めることができ、用途地域が定められていない区域にも定めることができます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -985,8 +985,8 @@ const QUESTIONS_LAWS = [
     explanation: "地階の住宅・老人ホーム等の床面積は、建築物の住宅等の用途に供する部分の床面積の合計の3分の1を限度に容積率算定から除外できます。前面道路12メートル未満では指定容積率と道路幅員×乗数の小さい方が適用されます。複数道路は最大幅員を基準とします。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -1001,14 +1001,14 @@ const QUESTIONS_LAWS = [
       "農地を農地のまま売買する場合は農地法第3条の許可が必要であるが、同一市町村内の農地間の交換には許可は不要である。",
       "農地を農地以外に転用するために賃借権を設定する場合は、農地法第4条の許可が必要である。",
       "相続によって農地を取得した場合、農地法第3条の許可は不要であるが、農業委員会への届出は必要である。",
-      "市街化区域内の農地を転用する場合は、農地法第4条・第5条の許可を受けずに農業委員会への届出のみで足りるが、市街化調整区域内の農地には同様の特例はない。"
+      "市街化調整区域内の農地にも同様の届出特例がある。"
     ],
     correct: 2,
     explanation: "相続・遺贈（包括遺贈）による農地取得は3条許可不要ですが、農業委員会への届出が必要です。農地の転用目的での権利設定・移転は5条許可です（4条は自ら転用）。市街化区域内農地の特例は届出で足りますが市街化調整区域には適用されません。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -1026,11 +1026,11 @@ const QUESTIONS_LAWS = [
       "注視区域内での届出に対して、都道府県知事は土地利用目的の変更を勧告することができるが、価格についての勧告はできない。"
     ],
     correct: 1,
-    explanation: "注視区域内では、通常の事後届出より小さい面積基準で事前届出が必要です（国土利用計画法27条の4）。監視区域は地価が急激に上昇するおそれがある区域で、事前届出制が適用され、届出から6週間（または不勧告通知まで）は契約を締結できません（同法27条の7）。監視区域・注視区域はいずれも都道府県知事等が指定します（同法27条の3・27条の6）。注視区域では土地利用目的のほか、対価の額についても勧告の対象となり得ます（同法27条の5）。",
+    explanation: "注視区域内では、事後届出と同じ面積基準（国土利用計画法23条2項1号）に該当する土地取引について事前届出が必要です。監視区域では、都道府県の規則でこれより小さい面積基準に引き下げることができます。監視区域は地価が急激に上昇するおそれがある区域で、事前届出制が適用され、届出から6週間（または不勧告通知まで）は契約を締結できません（同法27条の7）。監視区域・注視区域はいずれも都道府県知事等が指定します（同法27条の3・27条の6）。注視区域では土地利用目的のほか、対価の額についても勧告の対象となり得ます（同法27条の5）。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -1043,16 +1043,16 @@ const QUESTIONS_LAWS = [
     question: "建築基準法における日影規制に関する次の記述のうち、正しいものはどれか。",
     options: [
       "日影規制は、すべての用途地域に適用される。",
-      "商業地域、工業地域および工業専用地域内の建築物には、日影規制は適用されない。",
+      "商業地域、工業地域および工業専用地域は、原則として日影規制の対象区域に指定されない。",
       "日影規制の対象建築物は、軒高7メートルを超えるすべての建築物である。",
       "日影規制における日影の測定は、夏至日の午前8時から午後4時までを基準として行われる。"
     ],
     correct: 1,
-    explanation: "日影規制は商業地域・工業地域・工業専用地域には適用されません（これらは日影規制の対象外）。日影規制は用途地域ごとに対象建築物の規模が異なります。日影の測定基準は夏至日ではなく冬至日です。",
+    explanation: "商業地域・工業地域・工業専用地域は、原則として日影規制の対象区域に指定されません。日影規制は用途地域ごとに対象建築物の規模が異なります。日影の測定基準は夏至日ではなく冬至日です。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-25"
   },
@@ -1073,8 +1073,8 @@ const QUESTIONS_LAWS = [
     explanation: "準都市計画区域は、都市計画区域外の区域で、放置すれば将来の都市整備等に支障が生じるおそれがある区域を都道府県が指定します。準都市計画区域内にも一部の用途地域を定めることができます。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1095,8 +1095,8 @@ const QUESTIONS_LAWS = [
     explanation: "市街化調整区域内での農林漁業者が農林漁業用建築物を建築するための開発行為は開発許可が不要です。非常災害時の応急措置や都市計画事業の施行も許可不要です。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1109,7 +1109,7 @@ const QUESTIONS_LAWS = [
     question: "建築基準法における建ぺい率の緩和に関する次の記述のうち、正しいものはどれか。",
     options: [
       "建ぺい率の制限は用途地域の種類に関係なく全国一律60%と定められている。",
-      "防火地域内にある耐火建築物については、都市計画で定める建ぺい率に10%が加算される緩和が認められる。",
+      "建ぺい率の限度が80%とされる地域等を除き、防火地域内にある耐火建築物については、都市計画で定める建ぺい率に10%が加算される緩和が認められる。",
       "角地（複数の道路に接する敷地）への緩和は認められていない。",
       "商業地域に指定された敷地の建ぺい率は必ず80%となる。"
     ],
@@ -1117,8 +1117,8 @@ const QUESTIONS_LAWS = [
     explanation: "防火地域内の耐火建築物には建ぺい率+10%の緩和があります。建ぺい率は用途地域ごとに異なり、特定行政庁が角地と指定した場合も+10%の緩和があります。商業地域での建ぺい率は80%が多いですが一律ではありません。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1139,8 +1139,8 @@ const QUESTIONS_LAWS = [
     explanation: "道路斜線制限はすべての用途地域・区域に適用されます。絶対高さ制限は第一種・第二種低層住居専用地域の両方に適用されます。隣地斜線制限は低層住居専用地域では適用されず（絶対高さ制限があるため）、北側斜線制限は低層・中高層住居専用地域のみです。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1161,8 +1161,8 @@ const QUESTIONS_LAWS = [
     explanation: "既存建物を特殊建築物に用途変更する場合、その用途に供する部分の床面積が200平方メートルを超えると建築確認申請が必要です。200平方メートル以下であれば確認申請は不要です。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1183,8 +1183,8 @@ const QUESTIONS_LAWS = [
     explanation: "市街化調整区域は市街化を抑制する区域であるため、原則として用途地域を定めることができません。準都市計画区域にも一部の用途地域を定めることができ、非線引き都市計画区域にも用途地域を定めることができます。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1205,8 +1205,8 @@ const QUESTIONS_LAWS = [
     explanation: "保留地は換地計画において定められ、施行者が取得して事業費等に充てます。清算金は換地と従前地の価値の差を清算するもので、従前地が高価値なら清算金を受け取り、低価値なら清算金を支払います。徴収・交付は換地処分の公告後です。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1227,8 +1227,8 @@ const QUESTIONS_LAWS = [
     explanation: "農地法4条・5条の許可申請は、農業委員会を経由して都道府県知事等（4haを超える農地の転用については農林水産大臣との協議が必要）に提出します。5条の申請者は農地を取得しようとする者も含まれます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1242,15 +1242,15 @@ const QUESTIONS_LAWS = [
     options: [
       "建築協定は、複数の土地所有者が合意して設定しなければならず、一人の土地所有者のみでは設定できない。",
       "建築協定区域内の土地を後から取得した者（承継人）は、建築協定の内容に拘束されない。",
-      "建築協定を廃止するためには、協定区域内の土地所有者等の全員の合意のほか、特定行政庁の認可が必要である。",
+      "建築協定を廃止するためには、協定区域内の土地所有者等の過半数の合意のほか、特定行政庁の認可が必要である。",
       "建築協定の内容は、建築基準法に定める最低基準を緩和する方向にのみ設定できる。"
     ],
     correct: 2,
-    explanation: "建築協定の廃止には、土地所有者等全員の合意と特定行政庁の認可が必要です。一人でも設定可能（一人協定）で、承継人も拘束されます。建築協定は法令の基準を超えて建築物の水準向上を図るために設定します。",
+    explanation: "建築協定の廃止には、土地所有者等の過半数の合意と特定行政庁の認可が必要です。一人でも設定可能（一人協定）で、承継人も拘束されます。建築協定は法令の基準を超えて建築物の水準向上を図るために設定します。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1271,8 +1271,8 @@ const QUESTIONS_LAWS = [
     explanation: "市街化調整区域内でも、農林漁業者が自ら居住するための住宅など一定の建築物は許可なく建築できます。公益上必要な建築物も一定の手続きにより建築可能で、すべてが禁止されているわけではありません。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1293,8 +1293,8 @@ const QUESTIONS_LAWS = [
     explanation: "宅地造成工事には、排水施設の設置・地盤の締め固め・崖面の保護等の技術基準（政令で定める）への適合が求められます。技術基準は法令で定められており、都道府県が独自に緩和することはできません。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1315,8 +1315,8 @@ const QUESTIONS_LAWS = [
     explanation: "事後届出は土地の取得者（買主等）が、契約締結後2週間以内に、市区町村長を経由して都道府県知事に行います。届出を怠っても契約は有効ですが罰則の対象です。届出事項は利用目的と対価（価格）の両方です。",
     difficulty: "basic",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
@@ -1337,8 +1337,8 @@ const QUESTIONS_LAWS = [
     explanation: "既存不適格建築物は法改正等により現行法に適合しなくなった建物ですが、直ちに違反建築物とはされず使用継続は可能です。ただし増築・改築・大規模修繕等を行う場合は現行の建築基準法への適合が原則として求められます。",
     difficulty: "standard",
     source: "AI-generated draft",
-    verified: false,
-    confidence: "unchecked",
+    verified: true,
+    confidence: "high",
     generatedBy: "Claude",
     lawUpdatedAt: "2026-05-26"
   },
