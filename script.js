@@ -1,3 +1,150 @@
+// ── Sales gating scaffolding (Cycle 1) ───────────────────────────────────
+// 無料/有料分岐の「基盤」のみを追加する。既存機能には未接続（接続は Cycle 2/3）。
+// 仕様: sales-spec-free-paid-v2.md / free-question-selection-v1.md
+// Cycle 1 はコード定数のみ。URLパラメータ・開発用UI・localStorageへの権利保存は使わない。
+// takken_hub_entitlement_v1 は将来用の仕様として保持し、本番の権利保存は未実装。
+
+const ALL_QUESTIONS = QUESTIONS;
+
+const FREE_QUESTION_IDS = new Set([
+  '1',
+  '2',
+  'TK-2026-0026',
+  'TK-2026-0027',
+  'TK-2026-0028',
+  'TK-2026-0029',
+  'TK-2026-0030',
+  'TK-2026-0031',
+  'TK-2026-0032',
+  'TK-2026-0033',
+  'TK-2026-0034',
+  'TK-2026-0035',
+  'TK-2026-0036',
+  'TK-2026-0037',
+  'TK-2026-0038',
+  'TK-2026-0039',
+  'TK-2026-0040',
+  'TK-2026-0041',
+  'TK-2026-0042',
+  'TK-2026-0043',
+  'TK-2026-0044',
+  'TK-2026-0045',
+  'TK-2026-0046',
+  'TK-2026-0047',
+  'TK-2026-0048',
+  '3',
+  '4',
+  'TK-2026-0001',
+  'TK-2026-0002',
+  'TK-2026-0003',
+  'TK-2026-0004',
+  'TK-2026-0005',
+  'TK-2026-0006',
+  'TK-2026-0007',
+  'TK-2026-0008',
+  'TK-2026-0009',
+  'TK-2026-0010',
+  'TK-2026-0011',
+  'TK-2026-0012',
+  'TK-2026-0013',
+  'TK-2026-0014',
+  'TK-2026-0015',
+  'TK-2026-0016',
+  'TK-2026-0017',
+  'TK-2026-0018',
+  'TK-2026-0019',
+  'TK-2026-0020',
+  'TK-2026-0021',
+  'TK-2026-0022',
+  'TK-2026-0023',
+  '5',
+  '6',
+  'TK-2026-0051',
+  'TK-2026-0052',
+  'TK-2026-0053',
+  'TK-2026-0054',
+  'TK-2026-0055',
+  'TK-2026-0056',
+  'TK-2026-0057',
+  'TK-2026-0058',
+  'TK-2026-0059',
+  'TK-2026-0060',
+  'TK-2026-0061',
+  'TK-2026-0062',
+  'TK-2026-0063',
+  'TK-2026-0064',
+  'TK-2026-0065',
+  'TK-2026-0066',
+  'TK-2026-0067',
+  'TK-2026-0068',
+  'TK-2026-0069',
+  'TK-2026-0070',
+  'TK-2026-0071',
+  'TK-2026-0072',
+  'TK-2026-0073',
+  '7',
+  '8',
+  'TK-2026-0076',
+  'TK-2026-0077',
+  'TK-2026-0078',
+  'TK-2026-0079',
+  'TK-2026-0080',
+  'TK-2026-0081',
+  'TK-2026-0082',
+  'TK-2026-0083',
+  'TK-2026-0084',
+  'TK-2026-0085',
+  'TK-2026-0086',
+  'TK-2026-0087',
+  'TK-2026-0088',
+  'TK-2026-0089',
+  'TK-2026-0090',
+  'TK-2026-0091',
+  'TK-2026-0092',
+  'TK-2026-0093',
+  'TK-2026-0094',
+  'TK-2026-0095',
+  'TK-2026-0096',
+  'TK-2026-0097',
+  'TK-2026-0098',
+]);
+
+function normalizeQuestionId(id) {
+  return String(id);
+}
+
+function isFreeQuestion(question) {
+  return !!question && FREE_QUESTION_IDS.has(normalizeQuestionId(question.id));
+}
+
+const PREMIUM_UNLOCKED = false;
+
+function isPremiumUnlocked() {
+  return PREMIUM_UNLOCKED;
+}
+
+const PREMIUM_FEATURES = new Set([
+  'random20',
+  'random30',
+  'mockExam',
+  'weakTop5',
+  'reversePlan500',
+  'numbersFull',
+  'confusionFull',
+]);
+
+function isPremiumFeature(feature) {
+  return PREMIUM_FEATURES.has(feature);
+}
+
+function getAvailableQuestions() {
+  if (isPremiumUnlocked()) {
+    return ALL_QUESTIONS.slice();
+  }
+  return ALL_QUESTIONS.filter(isFreeQuestion);
+}
+// ── end sales gating scaffolding ─────────────────────────────────────────
+
 const CHAPTER_SIZE = 25;
 
 const CHAPTER_LABELS = {
