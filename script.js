@@ -367,9 +367,21 @@ function startQuiz(mode, category, chapterStart) {
       if (chapterStart !== undefined) qs = qs.slice(chapterStart, chapterStart + CHAPTER_SIZE);
       qs = shuffleArray(qs);
       break;
-    case 'random':
-      qs = shuffleArray(QUESTIONS).slice(0, App.randomCount);
+    case 'random': {
+      // 第3段防御：無料状態で 20/30 は開始しない（DOM改変・直接呼出の迂回も遮断）
+      if (!isPremiumUnlocked() && App.randomCount > 10) {
+        showPremiumLock(App.randomCount === 30 ? 'random30' : 'random20', null);
+        return;
+      }
+      const availableQuestions = getAvailableQuestions();
+      // 問題不足時は premium lock ではなく既存の一般通知 showToast で案内し開始しない
+      if (availableQuestions.length < App.randomCount) {
+        showToast('出題できる問題が不足しています。');
+        return;
+      }
+      qs = shuffleArray(availableQuestions).slice(0, App.randomCount);
       break;
+    }
     case 'review':
       qs = QUESTIONS.filter(q => {
         const h = hist[q.id];
@@ -385,8 +397,10 @@ function startQuiz(mode, category, chapterStart) {
       break;
     case 'daily': {
       const DAILY_SIZE = 5;
-      const unanswered = shuffleArray(QUESTIONS.filter(q => !hist[q.id] || hist[q.id].attempts === 0));
-      const wrong      = shuffleArray(QUESTIONS.filter(q => {
+      // 3候補すべて同一の available pool から生成（無料時は有料ID混入0）
+      const availableQuestions = getAvailableQuestions();
+      const unanswered = shuffleArray(availableQuestions.filter(q => !hist[q.id] || hist[q.id].attempts === 0));
+      const wrong      = shuffleArray(availableQuestions.filter(q => {
         const h = hist[q.id];
         return h && h.attempts > 0 && h.correct < h.attempts;
       }));
@@ -395,7 +409,7 @@ function startQuiz(mode, category, chapterStart) {
         pool = pool.concat(wrong.filter(q => !pool.includes(q)));
       }
       if (pool.length < DAILY_SIZE) {
-        pool = pool.concat(shuffleArray(QUESTIONS.filter(q => !pool.includes(q))));
+        pool = pool.concat(shuffleArray(availableQuestions.filter(q => !pool.includes(q))));
       }
       qs = pool.slice(0, DAILY_SIZE);
       break;
@@ -901,17 +915,30 @@ function renderCategoryChapters() {
 
 // ── RANDOM COUNT SELECTION ─────────────────────────────────────────────
 function renderRandomCount() {
+  const premium = isPremiumUnlocked();
   const options = [
     { n: 10, label: '10問', sub: '手軽にサクッと' },
     { n: 20, label: '20問', sub: 'バランスよく練習' },
     { n: 30, label: '30問', sub: 'しっかり本番対策' },
   ];
 
-  const cards = options.map(o => `
+  // 第1段防御：無料時は 20/30 を鍵付きロック表示（ボタンは消さない）
+  const cards = options.map(o => {
+    if (!premium && o.n > 10) {
+      const feat = o.n === 30 ? 'random30' : 'random20';
+      return `
+    <button class="count-card count-card-locked" data-action="start-random-count" data-value="${o.n}" data-locked-feature="${feat}" aria-disabled="true">
+      <span class="count-lock" aria-hidden="true">🔒</span>
+      <span class="count-num">${o.label}</span>
+      <span class="count-sub">有料版で解放</span>
+    </button>`;
+    }
+    return `
     <button class="count-card" data-action="start-random-count" data-value="${o.n}">
       <span class="count-num">${o.label}</span>
       <span class="count-sub">${o.sub}</span>
-    </button>`).join('');
+    </button>`;
+  }).join('');
 
   return `
   <div class="screen">
@@ -1979,6 +2006,66 @@ function renderConfusion() {
   </div>`;
 }
 
+// ── PREMIUM LOCK PANEL (Cycle 2-A1) ────────────────────────────────────
+function premiumLockText(feature) {
+  const map = {
+    random20: 'ランダム20問は有料版で解放されます。',
+    random30: 'ランダム30問は有料版で解放されます。',
+    mockExam: '模擬試験は有料版で解放されます。',
+  };
+  return map[feature] || 'この機能は有料版で解放されます。';
+}
+
+let _premiumLockTrigger = null;
+
+function _premiumLockKeydown(e) {
+  if (e.key === 'Escape') closePremiumLock();
+}
+
+function showPremiumLock(feature, triggerElement) {
+  closePremiumLock();
+  _premiumLockTrigger = (triggerElement && typeof triggerElement.focus === 'function') ? triggerElement : null;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'premium-lock-dialog';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'premium-lock-title');
+  overlay.dataset.feature = feature || '';
+  overlay.innerHTML = `
+    <div class="premium-lock-card">
+      <div class="premium-lock-title" id="premium-lock-title">有料版で解放</div>
+      <div class="premium-lock-body">${escapeHTML(premiumLockText(feature))}</div>
+      <div class="premium-lock-note">現在は購入機能を準備中です。</div>
+      <button class="premium-lock-close" type="button" data-premium-lock="close">閉じる</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => {
+    const closeTarget =
+      e.target && typeof e.target.closest === 'function'
+        ? e.target.closest('[data-premium-lock="close"]')
+        : null;
+
+    if (e.target === overlay || closeTarget) {
+      closePremiumLock();
+    }
+  });
+  document.addEventListener('keydown', _premiumLockKeydown);
+
+  const closeBtn = overlay.querySelector('.premium-lock-close');
+  if (closeBtn) closeBtn.focus();
+}
+
+function closePremiumLock() {
+  const overlay = document.getElementById('premium-lock-dialog');
+  if (overlay) overlay.remove();
+  document.removeEventListener('keydown', _premiumLockKeydown);
+  const trigger = _premiumLockTrigger;
+  _premiumLockTrigger = null;
+  if (trigger && typeof trigger.focus === 'function') trigger.focus();
+}
+
 // ── RESUME DIALOG ──────────────────────────────────────────────────────
 function showResumeDialog(resumeKey, resumeData, category, chapterStart) {
   const prev = document.getElementById('resume-dialog');
@@ -2196,10 +2283,22 @@ document.getElementById('app').addEventListener('click', e => {
     }
 
     case 'start-random':        go('random-count');                   break;
-    case 'start-random-count':
-      App.randomCount = parseInt(el.dataset.value);
+    case 'start-random-count': {
+      // 第2段防御：無料状態で 20/30 は App.randomCount を更新せず開始もしない
+      const count = parseInt(el.dataset.value, 10);
+      if (![10, 20, 30].includes(count)) {
+        showToast('出題数を確認できませんでした。');
+        return;
+      }
+      if (!isPremiumUnlocked() && count > 10) {
+        showPremiumLock(count === 30 ? 'random30' : 'random20', el);
+        return;
+      }
+
+      App.randomCount = count;
       startQuiz('random');
       break;
+    }
     case 'start-daily':    startQuiz('daily');                        break;
     case 'start-review':   startQuiz('review');                      break;
     case 'start-bookmark': startQuiz('bookmark');                    break;

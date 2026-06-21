@@ -1803,6 +1803,79 @@ html, body {
   cursor: pointer;
 }
 
+
+/* ── PREMIUM LOCK (Cycle 2-A1) ──────────────────────────────────────── */
+#premium-lock-dialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.premium-lock-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 24px 22px calc(22px + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  max-width: 340px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.premium-lock-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.premium-lock-body {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+
+.premium-lock-note {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+.premium-lock-close {
+  margin-top: 6px;
+  background: linear-gradient(140deg, var(--blue), var(--blue-mid));
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.premium-lock-close:focus-visible {
+  outline: 3px solid var(--border);
+  outline-offset: 3px;
+}
+
+.count-card-locked {
+  opacity: 0.85;
+  border-style: dashed;
+}
+
+.count-card-locked .count-num {
+  color: var(--text-sub);
+}
+
+.count-lock {
+  font-size: 18px;
+  margin-right: 2px;
+}
+
 /* ── NUMBERS MAP ───────────────────────────────────────────────────── */
 .numbers-body {
   padding: 16px;
