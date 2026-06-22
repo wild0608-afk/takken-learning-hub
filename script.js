@@ -2349,6 +2349,8 @@ document.getElementById('app').addEventListener('click', e => {
       break;
     }
     case 'start-chapter': {
+      // Cycle 3-B: 無料は章resumeを使わせない（resume dialogを出さず保存sessionも触れず、直接無料25問へ）
+      if (!isPremiumUnlocked()) { startQuiz('category', App.selectedCategory); break; }
       const cat   = App.selectedCategory;
       const start = parseInt(el.dataset.value);
       const rkey  = Store.resumeKey(cat, start);
@@ -2362,6 +2364,8 @@ document.getElementById('app').addEventListener('click', e => {
       break;
     }
     case 'start-chapter-all': {
+      // Cycle 3-B: 無料は章resumeを使わせない（resume dialogを出さず保存sessionも触れず、直接無料25問へ）
+      if (!isPremiumUnlocked()) { startQuiz('category', App.selectedCategory); break; }
       const cat  = App.selectedCategory;
       const rkey = Store.resumeKey(cat, undefined);
       const rd   = Store.loadResume(rkey);
