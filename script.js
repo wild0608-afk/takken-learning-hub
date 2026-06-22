@@ -362,11 +362,14 @@ function startQuiz(mode, category, chapterStart) {
   let qs = [];
 
   switch (mode) {
-    case 'category':
-      qs = QUESTIONS.filter(q => q.category === category);
-      if (chapterStart !== undefined) qs = qs.slice(chapterStart, chapterStart + CHAPTER_SIZE);
+    case 'category': {
+      // Cycle 2-A2: 無料は available pool（当該カテゴリ無料25問）、有料は全問＋章slice
+      const pool = isPremiumUnlocked() ? QUESTIONS : getAvailableQuestions();
+      qs = pool.filter(q => q.category === category);
+      if (isPremiumUnlocked() && chapterStart !== undefined) qs = qs.slice(chapterStart, chapterStart + CHAPTER_SIZE);
       qs = shuffleArray(qs);
       break;
+    }
     case 'random': {
       // 第3段防御：無料状態で 20/30 は開始しない（DOM改変・直接呼出の迂回も遮断）
       if (!isPremiumUnlocked() && App.randomCount > 10) {
@@ -450,7 +453,7 @@ function startQuiz(mode, category, chapterStart) {
   App.currentIndex   = 0;
   App.selectedAnswer = null;
   App.sessionResults = [];
-  App._resumeKey     = mode === 'category' ? Store.resumeKey(category, chapterStart) : null;
+  App._resumeKey     = (mode === 'category' && isPremiumUnlocked()) ? Store.resumeKey(category, chapterStart) : null;
   App._chapterStart  = chapterStart;
   go('quiz');
 }
@@ -2303,10 +2306,20 @@ document.getElementById('app').addEventListener('click', e => {
     case 'start-review':   startQuiz('review');                      break;
     case 'start-bookmark': startQuiz('bookmark');                    break;
     case 'start-category': {
-      App.selectedCategory = el.dataset.value;
-      const catQs = QUESTIONS.filter(q => q.category === App.selectedCategory);
-      if (catQs.length > CHAPTER_SIZE) go('category-chapters');
-      else startQuiz('category', App.selectedCategory);
+      const cat = el.dataset.value;
+      if (!CATEGORIES.includes(cat)) {
+        showToast('分野を確認できませんでした。');
+        return;
+      }
+      App.selectedCategory = cat;
+      if (!isPremiumUnlocked()) {
+        // Cycle 2-A2: 無料は章一覧を経由せず当該カテゴリの無料問題を直接演習
+        startQuiz('category', cat);
+      } else {
+        const catQs = QUESTIONS.filter(q => q.category === cat);
+        if (catQs.length > CHAPTER_SIZE) go('category-chapters');
+        else startQuiz('category', cat);
+      }
       break;
     }
     case 'start-chapter': {
