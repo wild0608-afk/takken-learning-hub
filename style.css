@@ -1876,6 +1876,26 @@ html, body {
   margin-right: 2px;
 }
 
+/* Cycle 2-C: home 模試カードの無料ロック表示（menu-grid レイアウトを保ったまま鍵を表示） */
+.menu-btn-locked {
+  opacity: 0.85;
+  border-style: dashed;
+}
+.menu-btn-locked .btn-label,
+.menu-btn-locked .btn-sub {
+  color: var(--text-sub);
+}
+.menu-grid > .menu-btn-locked::after {
+  content: none;
+}
+.menu-grid > .menu-btn-locked .menu-lock {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
 /* ── NUMBERS MAP ───────────────────────────────────────────────────── */
 .numbers-body {
   padding: 16px;

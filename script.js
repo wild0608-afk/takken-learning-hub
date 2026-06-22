@@ -728,11 +728,18 @@ function renderHome() {
             <span class="btn-label">付箋問題</span>
             <span class="btn-sub">${bkCnt > 0 ? bkCnt + '問' : 'なし'}</span>
           </button>
+          ${isPremiumUnlocked() ? `
           <button class="menu-btn" data-action="go-exam">
             <span class="btn-icon">🏆</span>
             <span class="btn-label">模擬試験</span>
             <span class="btn-sub">50問・本試験風配分</span>
-          </button>
+          </button>` : `
+          <button class="menu-btn menu-btn-locked" data-action="go-exam" data-locked-feature="mockExam" aria-disabled="true">
+            <span class="btn-icon">🏆</span>
+            <span class="btn-label">模擬試験</span>
+            <span class="btn-sub">有料版で解放</span>
+            <span class="menu-lock" aria-hidden="true">🔒</span>
+          </button>`}
           <button class="menu-btn" data-action="go-stats">
             <span class="btn-icon">📊</span>
             <span class="btn-label">学習記録</span>
@@ -2273,6 +2280,11 @@ document.getElementById('app').addEventListener('click', e => {
       window.scrollTo(0, 0);
       break;
     case 'go-exam': {
+      // Cycle 2-C: 無料は模試入口ロック。loadExamSession より前に return（examSession を読まない・触れない）
+      if (!isPremiumUnlocked() && isPremiumFeature('mockExam')) {
+        showPremiumLock('mockExam', el);
+        return;
+      }
       const es = Store.loadExamSession();
       if (isValidExamSession(es)) {
         showExamResumeDialog(es);
@@ -2284,6 +2296,11 @@ document.getElementById('app').addEventListener('click', e => {
     }
 
     case 'start-exam': {
+      // Cycle 2-C: 多層防御。App.examTimer* 更新・startQuiz('exam') より前に return
+      if (!isPremiumUnlocked() && isPremiumFeature('mockExam')) {
+        showPremiumLock('mockExam', el);
+        return;
+      }
       const timerOn = el.dataset.timer === '1';
       App.examTimerEnabled = timerOn;
       App.examTimerSeconds = timerOn ? 7200 : 0;
