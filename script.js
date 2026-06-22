@@ -386,7 +386,8 @@ function startQuiz(mode, category, chapterStart) {
       break;
     }
     case 'review':
-      qs = QUESTIONS.filter(q => {
+      // Cycle 2-B: 無料は available pool（無料範囲内の誤答のみ）、有料は全問。誤答判定・誤答数順sortは維持
+      qs = getAvailableQuestions().filter(q => {
         const h = hist[q.id];
         return h && h.attempts > 0 && h.correct < h.attempts;
       });
@@ -396,7 +397,8 @@ function startQuiz(mode, category, chapterStart) {
       });
       break;
     case 'bookmark':
-      qs = QUESTIONS.filter(q => hist[q.id] && hist[q.id].bookmarked);
+      // Cycle 2-B: 無料は available pool（無料範囲内の付箋のみ）、有料は全問。bookmarked判定は維持
+      qs = getAvailableQuestions().filter(q => hist[q.id] && hist[q.id].bookmarked);
       break;
     case 'daily': {
       const DAILY_SIZE = 5;
@@ -439,6 +441,11 @@ function startQuiz(mode, category, chapterStart) {
   }
 
   if (qs.length === 0) {
+    // Cycle 2-B: 無料時の review/bookmark のみ「無料範囲に対象問題がありません。」を案内（有料は現行mode別文言を維持）
+    if (!isPremiumUnlocked() && (mode === 'review' || mode === 'bookmark')) {
+      showToast('無料範囲に対象問題がありません。');
+      return;
+    }
     const msgs = {
       review:   '間違えた問題がまだありません。\nまず問題を解いてみましょう！',
       bookmark: '付箋をつけた問題がありません。\n問題画面の ☆ をタップして付箋を追加できます。',
