@@ -551,11 +551,13 @@ function renderHome() {
   const corr       = vals.reduce((s, h) => s + h.correct,  0);
   const rate       = total > 0 ? Math.round(corr / total * 100) : 0;
   const done       = vals.filter(h => h.attempts > 0).length;
-  const bkCnt      = vals.filter(h => h.bookmarked).length;
+  // Cycle 3-A: 復習/付箋の home 件数を available pool 基準にし、開始可能件数と一致させる（有料は全500、無料は無料範囲）
+  const availablePool = getAvailableQuestions();
+  const bkCnt      = availablePool.filter(q => hist[q.id] && hist[q.id].bookmarked).length;
   const todayCount = Store.todayCount();
   const streakDays = Store.streak();
   const isDone     = Store.isDailyCompleted();
-  const wrongCnt = QUESTIONS.filter(q => {
+  const wrongCnt = availablePool.filter(q => {
     const h = hist[q.id];
     return h && h.attempts > 0 && h.correct < h.attempts;
   }).length;
