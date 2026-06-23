@@ -1852,6 +1852,34 @@ function renderNumbers() {
   const ORDER = ['宅建業法', '法令上の制限', '税・その他', '権利関係'];
   const CAT_ICONS = { '宅建業法': '🏢', '法令上の制限': '📋', '税・その他': '💴', '権利関係': '⚖️' };
 
+  // Cycle 3-F: 無料は先頭2件のみプレビュー（カテゴリナビ非表示・3件目以降の本文は無料DOMに生成しない）。残りはロックカード
+  if (!isPremiumUnlocked()) {
+    const previewCards = data.slice(0, 2).map(item => `
+      <div class="numbers-card">
+        <div class="numbers-label">${escapeHTML(item.label)}</div>
+        <div class="numbers-value">${escapeHTML(item.value)}</div>
+        <div class="numbers-note">${escapeHTML(item.note)}</div>
+      </div>`).join('');
+    return `
+    <div class="screen">
+      <div class="header">
+        <button class="btn-back" data-action="go-home">
+          <span class="btn-back-arrow">←</span>戻る
+        </button>
+        <div class="header-title">重要数字マップ</div>
+      </div>
+      <div class="numbers-body">
+        <div class="numbers-intro">宅建で混同しやすい数字・期限・割合を整理します。</div>
+        ${previewCards}
+        <button class="preview-lock-card" data-action="premium-lock" data-locked-feature="numbersFull" aria-label="残りの重要数字は有料版で閲覧できます">
+          <span class="preview-lock-icon" aria-hidden="true">🔒</span>
+          <span class="preview-lock-text">残りの重要数字は有料版で閲覧できます</span>
+          <span class="preview-lock-sub">残り${data.length - 2}件</span>
+        </button>
+      </div>
+    </div>`;
+  }
+
   const selected = App.numbersCategory;
 
   if (!selected) {
@@ -1992,7 +2020,9 @@ function renderConfusion() {
 
   const makeBody = text => escapeHTML(text).replace(/\n/g, '<br>');
 
-  const cards = data.map(item => `
+  // Cycle 3-F: 無料は先頭2件のみ（3件目以降の本文を無料DOMに生成しない）。残りはロックカード
+  const visible = isPremiumUnlocked() ? data : data.slice(0, 2);
+  const cards = visible.map(item => `
     <div class="confusion-card">
       <div class="confusion-cat-tag">${escapeHTML(item.category)}</div>
       <div class="confusion-title">${escapeHTML(item.title)}</div>
@@ -2011,6 +2041,13 @@ function renderConfusion() {
       <div class="confusion-danger">⚠️ ${escapeHTML(item.dangerPoint)}</div>
     </div>`).join('');
 
+  const lockCard = isPremiumUnlocked() ? '' : `
+    <button class="preview-lock-card" data-action="premium-lock" data-locked-feature="confusionFull" aria-label="残りの混同ポイントは有料版で閲覧できます">
+      <span class="preview-lock-icon" aria-hidden="true">🔒</span>
+      <span class="preview-lock-text">残りの混同ポイントは有料版で閲覧できます</span>
+      <span class="preview-lock-sub">残り${data.length - 2}件</span>
+    </button>`;
+
   return `
   <div class="screen">
     <div class="header">
@@ -2022,6 +2059,7 @@ function renderConfusion() {
     <div class="confusion-body">
       <div class="confusion-intro">似た制度の違いを、左右で見比べて整理します。</div>
       ${cards}
+      ${lockCard}
     </div>
   </div>`;
 }
@@ -2032,6 +2070,8 @@ function premiumLockText(feature) {
     random20: 'ランダム20問は有料版で解放されます。',
     random30: 'ランダム30問は有料版で解放されます。',
     mockExam: '模擬試験は有料版で解放されます。',
+    numbersFull: '重要数字マップは有料版ですべて閲覧できます。',
+    confusionFull: '混同ポイント整理は有料版ですべて閲覧できます。',
   };
   return map[feature] || 'この機能は有料版で解放されます。';
 }
@@ -2272,7 +2312,13 @@ document.getElementById('app').addEventListener('click', e => {
       go('numbers');
       break;
     case 'go-confusion': go('confusion'); break;
+    // Cycle 3-F: ロックカード押下で既存 premium lock dialog（重要数字/混同の残り件）
+    case 'premium-lock':
+      showPremiumLock(el.dataset.lockedFeature || '', el);
+      break;
     case 'select-numbers-category':
+      // Cycle 3-F: 無料はカテゴリ詳細（全件）へ進ませない（DOM改変による迂回も遮断）。numbersCategory を更新しない
+      if (!isPremiumUnlocked()) { showPremiumLock('numbersFull', el); return; }
       App.numbersCategory = el.dataset.value;
       render();
       window.scrollTo(0, 0);
