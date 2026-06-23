@@ -1924,6 +1924,28 @@ html, body {
   color: var(--text-sub);
 }
 
+/* Cycle 3-G: 学習記録の有料範囲ロック概要カード */
+.premium-history-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1.5px dashed var(--border);
+  cursor: pointer;
+  font-family: var(--font);
+}
+.premium-history-card .premium-history-detail {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-mid);
+}
+.premium-history-card .premium-history-note {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+
 /* ── NUMBERS MAP ───────────────────────────────────────────────────── */
 .numbers-body {
   padding: 16px;

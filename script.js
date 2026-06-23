@@ -131,6 +131,7 @@ const PREMIUM_FEATURES = new Set([
   'reversePlan500',
   'numbersFull',
   'confusionFull',
+  'premiumHistory',
 ]);
 
 function isPremiumFeature(feature) {
@@ -1364,6 +1365,28 @@ function renderStats() {
   const done   = pool.filter(q => hist[q.id]?.attempts > 0).length;
   const undone = Math.max(0, pool.length - done);
 
+  // Cycle 3-G: 無料時のみ、有料範囲に保存済み学習データがあれば非破壊の概要を表示（件数のみ・内容/ID/カテゴリ/session詳細は出さない・read-onlyでcleanupなし）
+  let premiumHistoryCard = '';
+  if (!isPremiumUnlocked()) {
+    const paidQs    = ALL_QUESTIONS.filter(q => !isFreeQuestion(q));
+    const paidDone  = paidQs.filter(q => hist[q.id]?.attempts > 0).length;
+    const paidWrong = paidQs.filter(q => { const h = hist[q.id]; return h && h.attempts > 0 && h.correct < h.attempts; }).length;
+    const paidBk    = paidQs.filter(q => hist[q.id]?.bookmarked).length;
+    const raw       = Store.load();
+    const hasSession = Object.keys(raw.resumeSessions || {}).length > 0 || !!raw.examSession;
+    if (paidDone > 0 || paidWrong > 0 || paidBk > 0 || hasSession) {
+      const detail = (paidDone > 0 || paidWrong > 0 || paidBk > 0)
+        ? `学習済み${paidDone}問・誤答${paidWrong}問・付箋${paidBk}問`
+        : '保存済みの学習データがあります';
+      premiumHistoryCard = `
+      <button class="stats-card premium-history-card" data-action="premium-lock" data-locked-feature="premiumHistory">
+        <div class="stats-card-title">🔒 有料範囲の学習記録があります</div>
+        <div class="premium-history-detail">${escapeHTML(detail)}</div>
+        <div class="premium-history-note">データは保存されています。有料版で続きから利用できます。</div>
+      </button>`;
+    }
+  }
+
   const activeDays = Store.load().activeDays || [];
   const streakDays = Store.streak();
   const todayStr   = Store.todayStr();
@@ -1497,6 +1520,7 @@ function renderStats() {
           </div>
         </div>
       </div>
+      ${premiumHistoryCard}
 
       <div class="stats-card">
         <div class="stats-card-title">⚠️ 苦手問題 TOP${weakLimit}</div>
@@ -2072,6 +2096,7 @@ function premiumLockText(feature) {
     mockExam: '模擬試験は有料版で解放されます。',
     numbersFull: '重要数字マップは有料版ですべて閲覧できます。',
     confusionFull: '混同ポイント整理は有料版ですべて閲覧できます。',
+    premiumHistory: '有料範囲の学習記録は有料版で続きから利用できます。',
   };
   return map[feature] || 'この機能は有料版で解放されます。';
 }
