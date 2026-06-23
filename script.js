@@ -546,13 +546,12 @@ function render() {
 // ── HOME ───────────────────────────────────────────────────────────────
 function renderHome() {
   const hist       = Store.history();
-  const vals       = Object.values(hist);
-  const total      = vals.reduce((s, h) => s + h.attempts, 0);
-  const corr       = vals.reduce((s, h) => s + h.correct,  0);
-  const rate       = total > 0 ? Math.round(corr / total * 100) : 0;
-  const done       = vals.filter(h => h.attempts > 0).length;
-  // Cycle 3-A: 復習/付箋の home 件数を available pool 基準にし、開始可能件数と一致させる（有料は全500、無料は無料範囲）
+  // Cycle 3-A/3-E: home の全体成績・学習進捗・逆算プラン・復習/付箋件数を available pool 基準に統一し、学習記録画面と整合（有料=全500、無料=無料範囲）。history非破壊
   const availablePool = getAvailableQuestions();
+  const total      = availablePool.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
+  const corr       = availablePool.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
+  const rate       = total > 0 ? Math.round(corr / total * 100) : 0;
+  const done       = availablePool.filter(q => hist[q.id]?.attempts > 0).length;
   const bkCnt      = availablePool.filter(q => hist[q.id] && hist[q.id].bookmarked).length;
   const todayCount = Store.todayCount();
   const streakDays = Store.streak();
@@ -563,7 +562,7 @@ function renderHome() {
   }).length;
   const CAT_ICONS = { '権利関係':'⚖️', '宅建業法':'🏢', '法令上の制限':'📋', '税・その他':'💴' };
   const catAll = CATEGORIES.map(cat => {
-    const qs  = QUESTIONS.filter(q => q.category === cat);
+    const qs  = availablePool.filter(q => q.category === cat);
     const att = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
     const cr  = qs.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
     return { cat, att, rate: att > 0 ? Math.round(cr / att * 100) : null };
@@ -577,7 +576,7 @@ function renderHome() {
   const EXAM_DATE = new Date('2026-10-18');
   const _today    = new Date(); _today.setHours(0, 0, 0, 0);
   const daysLeft  = Math.max(0, Math.ceil((EXAM_DATE - _today) / 86400000));
-  const undone     = QUESTIONS.length - done;
+  const undone     = availablePool.length - done;
   const paceNeed   = daysLeft > 0 && undone > 0 ? Math.ceil(undone / daysLeft) : 0;
   const paceStatus = undone === 0
     ? '✅ 全問学習済み！復習を続けよう'
@@ -589,7 +588,7 @@ function renderHome() {
   const paceColor  = undone === 0 || (paceNeed > 0 && todayCount >= paceNeed)
     ? 'var(--g600)' : 'var(--text-mid)';
 
-  const totalQ        = QUESTIONS.length;
+  const totalQ        = availablePool.length;
   const overallPct    = Math.round(done / totalQ * 100);
   const paceGood      = undone === 0 || (paceNeed > 0 && todayCount >= paceNeed);
   const paceBoxLabel  = paceGood ? '良好' : '伸ばそう';
