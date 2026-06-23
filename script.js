@@ -1356,13 +1356,14 @@ function renderExamResult() {
 // ── STATS ──────────────────────────────────────────────────────────────
 function renderStats() {
   const hist   = Store.history();
-  const vals   = Object.values(hist);
-  const total  = vals.reduce((s, h) => s + h.attempts, 0);
-  const corr   = vals.reduce((s, h) => s + h.correct,  0);
+  // Cycle 3-D: 無料は available pool を統計母集合に（有料=全500）。history本体は非破壊・有料範囲は保持
+  const pool   = getAvailableQuestions();
+  const total  = pool.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
+  const corr   = pool.reduce((s, q) => s + (hist[q.id]?.correct  || 0), 0);
   const rate   = total > 0 ? Math.round(corr / total * 100) : 0;
-  const bkCnt  = vals.filter(h => h.bookmarked).length;
-  const done   = vals.filter(h => h.attempts > 0).length;
-  const undone = Math.max(0, QUESTIONS.length - done);
+  const bkCnt  = pool.filter(q => hist[q.id] && hist[q.id].bookmarked).length;
+  const done   = pool.filter(q => hist[q.id]?.attempts > 0).length;
+  const undone = Math.max(0, pool.length - done);
 
   const activeDays = Store.load().activeDays || [];
   const streakDays = Store.streak();
@@ -1381,8 +1382,9 @@ function renderStats() {
     '法令上の制限': '📋', '税・その他': '💴',
   };
 
-  // 苦手問題 TOP5（誤答数降順）
-  const weakQs = QUESTIONS
+  // Cycle 3-D: 苦手問題 無料TOP3 / 有料TOP5（誤答数降順）。無料は available pool 内のみ（有料IDを苦手に出さない）
+  const weakLimit = isPremiumUnlocked() ? 5 : 3;
+  const weakQs = pool
     .filter(q => {
       const h = hist[q.id];
       return h && h.attempts > 0 && h.correct < h.attempts;
@@ -1391,7 +1393,7 @@ function renderStats() {
       const ha = hist[a.id], hb = hist[b.id];
       return (hb.attempts - hb.correct) - (ha.attempts - ha.correct);
     })
-    .slice(0, 5);
+    .slice(0, weakLimit);
 
   const weakList = weakQs.length > 0
     ? weakQs.map((q, i) => {
@@ -1414,7 +1416,7 @@ function renderStats() {
 
   // 分野別成績行
   const catRows = CATEGORIES.map(cat => {
-    const qs        = QUESTIONS.filter(q => q.category === cat);
+    const qs        = pool.filter(q => q.category === cat);
     const catDone   = qs.filter(q => hist[q.id]?.attempts > 0).length;
     const catUndone = qs.length - catDone;
     const att       = qs.reduce((s, q) => s + (hist[q.id]?.attempts || 0), 0);
@@ -1498,7 +1500,7 @@ function renderStats() {
       </div>
 
       <div class="stats-card">
-        <div class="stats-card-title">⚠️ 苦手問題 TOP5</div>
+        <div class="stats-card-title">⚠️ 苦手問題 TOP${weakLimit}</div>
         <div class="weak-list">${weakList}</div>
       </div>
 
