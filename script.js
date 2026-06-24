@@ -119,8 +119,13 @@ function isFreeQuestion(question) {
 
 const PREMIUM_UNLOCKED = false;
 
+// BETA ONLY: Set to false before paid release or replace with StoreKit entitlement.
+const BETA_UNLOCK_ALL = true;
+
 function isPremiumUnlocked() {
-  return PREMIUM_UNLOCKED;
+  // β期間限定の全機能開放。BETA_UNLOCK_ALL=false で従来の無料100問・全ロックへ完全復帰する。
+  // 既存の PREMIUM_UNLOCKED 判定は温存し、β フラグを OR で一元接続するだけに留める。
+  return BETA_UNLOCK_ALL || PREMIUM_UNLOCKED;
 }
 
 const PREMIUM_FEATURES = new Set([
@@ -662,6 +667,11 @@ function renderHome() {
     </div>
 
     <div class="home-body">
+
+      ${BETA_UNLOCK_ALL ? `
+      <div style="margin:0 0 14px;padding:11px 14px;border-radius:12px;background:var(--g50);border:1px solid var(--g200);font-size:13px;line-height:1.7;color:var(--text-mid)">
+        🧪 β期間中は全500問・全機能を無料で開放中です。詳しくは「アプリの使い方」をご覧ください。
+      </div>` : ''}
 
       ${isDone
         ? `<div class="home-done-card">
@@ -1640,7 +1650,9 @@ function renderGuide() {
     {
       icon: '🧪',
       title: 'ベータ版について',
-      body: '本アプリはβ版です。内容は継続的に改善中です。誤りや気づきがあればフィードバックをお願いします。',
+      body: BETA_UNLOCK_ALL
+        ? 'β期間中は、全500問と全機能（本試験型50問模試、分野別の章学習と途中再開、ランダム20問・30問、重要数字マップ・混同ポイントの全件、全500問を対象とした復習・付箋・学習記録）を無料で開放しています。正式版は買い切り1,000円で提供予定です（現在は販売前のため、購入手続きはまだありません）。内容は継続的に改善中です。誤りや気づきがあればフィードバックをお願いします。'
+        : '本アプリはβ版です。内容は継続的に改善中です。誤りや気づきがあればフィードバックをお願いします。',
     },
     {
       icon: '⚖️',
