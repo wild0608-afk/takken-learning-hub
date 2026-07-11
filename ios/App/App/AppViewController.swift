@@ -42,7 +42,15 @@ class AppViewController: CAPBridgeViewController {
         } catch (e) {
           productState = 'error:' + (e && e.code ? e.code : 'unknown');
         }
-        return { entitled: ent.entitled, state: ent.state, product: productState };
+        const wired = {
+          premiumFn: typeof isPremiumUnlocked === 'function',
+          premiumNow: typeof isPremiumUnlocked === 'function' ? isPremiumUnlocked() : null,
+          appleEntitled: typeof AppleEntitlement === 'object' ? AppleEntitlement.entitled : null,
+          debugFlag: typeof AppleEntitlement === 'object' ? AppleEntitlement.debugBuild : null,
+          dialogFn: typeof showPurchaseDialog === 'function',
+          debugEntry: !!document.querySelector('[data-action="debug-purchase"]'),
+        };
+        return { entitled: ent.entitled, state: ent.state, debugBuild: ent.debugBuild, product: productState, wired: JSON.stringify(wired) };
         """
         webView.callAsyncJavaScript(js, arguments: [:], in: nil, in: .page) { result in
             switch result {
@@ -50,8 +58,10 @@ class AppViewController: CAPBridgeViewController {
                 if let dict = value as? [String: Any] {
                     let entitled = String(describing: dict["entitled"] ?? "nil")
                     let state = String(describing: dict["state"] ?? "nil")
+                    let debugBuild = String(describing: dict["debugBuild"] ?? "nil")
                     let product = String(describing: dict["product"] ?? "nil")
-                    Self.log.info("selfcheck ok entitled=\(entitled, privacy: .public) state=\(state, privacy: .public) product=\(product, privacy: .public)")
+                    let wired = String(describing: dict["wired"] ?? "nil")
+                    Self.log.info("selfcheck ok entitled=\(entitled, privacy: .public) state=\(state, privacy: .public) debugBuild=\(debugBuild, privacy: .public) product=\(product, privacy: .public) wired=\(wired, privacy: .public)")
                 } else {
                     Self.log.warning("selfcheck: unexpected result shape")
                 }

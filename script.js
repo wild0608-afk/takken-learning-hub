@@ -122,10 +122,82 @@ const PREMIUM_UNLOCKED = false;
 // BETA ONLY: Set to false before paid release or replace with StoreKit entitlement.
 const BETA_UNLOCK_ALL = true;
 
+// ── PREMIUM STORE (iOS StoreKit 2) ─────────────────────────────────────
+// 購入権限の正本は Apple の verified transaction（ネイティブ側 PremiumStore
+// プラグインが Transaction.currentEntitlements を評価）。ここはその実行時
+// ミラーであり、localStorage には保存しない。Web 版（プラグイン不在）では
+// 何もせず従来動作を維持する。
+const AppleEntitlement = {
+  entitled: false,   // 実行時のみ。永続化しない
+  debugBuild: false, // iOS DEBUG ビルドのみ true（課金テスト導線の表示用）
+};
+
+function premiumStorePlugin() {
+  const cap = window.Capacitor;
+  if (!cap || typeof cap.isNativePlatform !== 'function' || !cap.isNativePlatform()) return null;
+  return (cap.Plugins && cap.Plugins.PremiumStore) || null;
+}
+
+function applyEntitlement(entitled) {
+  const next = entitled === true;
+  if (AppleEntitlement.entitled === next) return;
+  // 権限変化時のみ再描画。学習履歴・付箋などの localStorage データには触れない。
+  AppleEntitlement.entitled = next;
+  render();
+  // 購入ダイアログが開いていれば購入済み/再購入可能の表示を同期する
+  // （refund / revoke 通知で購入可能状態へ戻すのもここ）
+  _updatePurchaseDialogEntitlementUI();
+}
+
+// 順序ガード: 古い照会結果が新しい状態（通知・後発の照会）を上書きしないための
+// 世代カウンタ。通知受信と照会開始のそれぞれで進む。
+let _entitlementEventSeq = 0; // entitlementChanged 受信ごとに加算
+let _entitlementQuerySeq = 0; // getEntitlement 照会開始ごとに加算
+
+// 共有照会ヘルパー。「自分が最新の照会」かつ「照会中に通知が届いていない」
+// 場合のみ状態へ反映する。上書きされた場合は確定済みの現在状態を返す。
+// 失敗時は throw（呼出し側でフェイルクローズ処理）。
+async function _queryEntitlement(plugin) {
+  const queryToken = ++_entitlementQuerySeq;
+  const eventSeqBefore = _entitlementEventSeq;
+  const ent = await plugin.getEntitlement();
+  const entitled = !!(ent && ent.entitled === true);
+  const debugBuild = !!(ent && ent.debugBuild === true);
+  const isLatest =
+    queryToken === _entitlementQuerySeq && eventSeqBefore === _entitlementEventSeq;
+  if (isLatest) {
+    applyEntitlement(entitled);
+    return { entitled, debugBuild };
+  }
+  return { entitled: AppleEntitlement.entitled, debugBuild };
+}
+
+async function initPremiumStore() {
+  const plugin = premiumStorePlugin();
+  if (!plugin) return; // Web 版フォールバック（現行動作を維持）
+  // 初回照会より前にリスナー登録を完了させる（照会中に届く refund / revoke /
+  // pending 確定の通知を取りこぼさないため）。addListener は Promise を返す。
+  try {
+    await plugin.addListener('entitlementChanged', data => {
+      _entitlementEventSeq++;
+      applyEntitlement(!!(data && data.entitled === true));
+    });
+  } catch (_) {
+    // リスナー不成立でも購入・復元後の再評価で権限は反映される
+  }
+  try {
+    const r = await _queryEntitlement(plugin);
+    AppleEntitlement.debugBuild = r.debugBuild;
+    if (AppleEntitlement.debugBuild) render(); // DEBUG 導線を表示へ反映
+  } catch (_) {
+    // 取得失敗時は解放しない（フェイルクローズ）
+  }
+}
+
 function isPremiumUnlocked() {
   // β期間限定の全機能開放。BETA_UNLOCK_ALL=false で従来の無料100問・全ロックへ完全復帰する。
-  // 既存の PREMIUM_UNLOCKED 判定は温存し、β フラグを OR で一元接続するだけに留める。
-  return BETA_UNLOCK_ALL || PREMIUM_UNLOCKED;
+  // 既存の PREMIUM_UNLOCKED 判定は温存し、βフラグと Apple verified entitlement を OR で一元接続する。
+  return BETA_UNLOCK_ALL || PREMIUM_UNLOCKED || AppleEntitlement.entitled;
 }
 
 const PREMIUM_FEATURES = new Set([
@@ -672,6 +744,12 @@ function renderHome() {
       <div style="margin:0 0 14px;padding:11px 14px;border-radius:12px;background:var(--g50);border:1px solid var(--g200);font-size:13px;line-height:1.7;color:var(--text-mid)">
         🧪 β期間中は全500問・全機能を無料で開放中です。詳しくは「アプリの使い方」をご覧ください。
       </div>` : ''}
+
+      ${AppleEntitlement.debugBuild ? `
+      <button type="button" data-action="debug-purchase"
+        style="margin:0 0 14px;padding:10px 14px;border-radius:12px;border:1px dashed #D97706;background:#FFFBEB;color:#92400E;font-size:13px;width:100%;text-align:left">
+        🛠 [開発ビルド専用] 課金テスト画面を開く
+      </button>` : ''}
 
       ${isDone
         ? `<div class="home-done-card">
@@ -2158,7 +2236,10 @@ function showPremiumLock(feature, triggerElement) {
     <div class="premium-lock-card">
       <div class="premium-lock-title" id="premium-lock-title">有料版で解放</div>
       <div class="premium-lock-body">${escapeHTML(premiumLockText(feature))}</div>
-      <div class="premium-lock-note">現在は購入機能を準備中です。</div>
+      ${premiumStorePlugin()
+        ? `<button class="premium-lock-close" type="button" data-premium-lock="purchase"
+             style="background:#2563EB;color:#fff;margin-bottom:8px">購入画面を開く</button>`
+        : `<div class="premium-lock-note">現在は購入機能を準備中です。</div>`}
       <button class="premium-lock-close" type="button" data-premium-lock="close">閉じる</button>
     </div>`;
   document.body.appendChild(overlay);
@@ -2168,7 +2249,16 @@ function showPremiumLock(feature, triggerElement) {
       e.target && typeof e.target.closest === 'function'
         ? e.target.closest('[data-premium-lock="close"]')
         : null;
+    const purchaseTarget =
+      e.target && typeof e.target.closest === 'function'
+        ? e.target.closest('[data-premium-lock="purchase"]')
+        : null;
 
+    if (purchaseTarget) {
+      closePremiumLock();
+      showPurchaseDialog();
+      return;
+    }
     if (e.target === overlay || closeTarget) {
       closePremiumLock();
     }
@@ -2186,6 +2276,199 @@ function closePremiumLock() {
   const trigger = _premiumLockTrigger;
   _premiumLockTrigger = null;
   if (trigger && typeof trigger.focus === 'function') trigger.focus();
+}
+
+// ── PURCHASE DIALOG (iOS のみ・PremiumStore プラグイン必須) ──────────────
+// Web 版ではプラグイン不在のため一切表示されない（購入可能との誤認防止）。
+// 価格はコードに固定せず、必ず Apple から取得した displayPrice を表示する。
+let _purchaseBusy = false;
+
+function _purchaseKeydown(e) {
+  if (e.key === 'Escape' && !_purchaseBusy) closePurchaseDialog();
+}
+
+function closePurchaseDialog() {
+  const overlay = document.getElementById('purchase-dialog');
+  if (overlay) overlay.remove();
+  document.removeEventListener('keydown', _purchaseKeydown);
+}
+
+function _purchaseSetStatus(text) {
+  const el = document.getElementById('purchase-status');
+  if (el) el.textContent = text;
+}
+
+function _purchaseSetBusy(busy) {
+  _purchaseBusy = busy;
+  const buy = document.getElementById('purchase-buy');
+  const restore = document.getElementById('purchase-restore');
+  const close = document.getElementById('purchase-close');
+  if (buy) buy.disabled = busy;
+  if (restore) restore.disabled = busy;
+  if (close) close.disabled = busy;
+}
+
+function showPurchaseDialog() {
+  const plugin = premiumStorePlugin();
+  if (!plugin) return; // Web 版では表示しない
+
+  closePurchaseDialog();
+  const overlay = document.createElement('div');
+  overlay.id = 'purchase-dialog';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'purchase-title');
+  overlay.className = '';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;z-index:9998;padding:20px';
+  overlay.innerHTML = `
+    <div class="premium-lock-card" style="max-width:320px;width:100%">
+      <div class="premium-lock-title" id="purchase-title">全500問 完全版</div>
+      <div class="premium-lock-body" id="purchase-product">価格を取得しています…</div>
+      <div class="premium-lock-body" id="purchase-owned"
+        style="display:none;font-weight:700;color:#059669">✓ 購入済みです。全500問が解放されています。</div>
+      <div class="premium-lock-note" id="purchase-status" role="status" aria-live="polite"></div>
+      <button class="premium-lock-close" type="button" id="purchase-buy"
+        style="background:#2563EB;color:#fff;margin-bottom:8px" disabled>購入する</button>
+      <button class="premium-lock-close" type="button" id="purchase-restore"
+        style="margin-bottom:8px">購入を復元</button>
+      <button class="premium-lock-close" type="button" id="purchase-close" data-purchase="close">閉じる</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.addEventListener('keydown', _purchaseKeydown);
+
+  overlay.addEventListener('click', e => {
+    if (_purchaseBusy) return;
+    if (e.target === overlay || (e.target && e.target.id === 'purchase-close')) {
+      closePurchaseDialog();
+      return;
+    }
+    if (e.target && e.target.id === 'purchase-buy') {
+      if (e.target.dataset.mode === 'retry') {
+        _loadPurchaseProduct(plugin);
+      } else {
+        _doPurchase(plugin);
+      }
+      return;
+    }
+    if (e.target && e.target.id === 'purchase-restore') {
+      _doRestore(plugin);
+    }
+  });
+
+  _loadPurchaseProduct(plugin);
+  _updatePurchaseDialogEntitlementUI();
+}
+
+// 購入済みなら購入ボタンを非表示にして「購入済み」を明示し、
+// refund / revoke で entitlement が失われたら再購入可能な表示へ戻す。
+function _updatePurchaseDialogEntitlementUI() {
+  const dialog = document.getElementById('purchase-dialog');
+  if (!dialog) return;
+  const buy = document.getElementById('purchase-buy');
+  const owned = document.getElementById('purchase-owned');
+  if (!buy || !owned) return;
+  if (AppleEntitlement.entitled) {
+    buy.style.display = 'none';
+    owned.style.display = '';
+  } else {
+    buy.style.display = '';
+    owned.style.display = 'none';
+  }
+}
+
+async function _loadPurchaseProduct(plugin) {
+  const productEl = document.getElementById('purchase-product');
+  const buy = document.getElementById('purchase-buy');
+  if (productEl) productEl.textContent = '価格を取得しています…';
+  _purchaseSetStatus('');
+  if (buy) { buy.disabled = true; buy.dataset.mode = ''; buy.textContent = '購入する'; }
+  try {
+    const p = await plugin.getProduct();
+    if (!document.getElementById('purchase-dialog')) return;
+    // Apple のローカライズ価格が取得できたときだけ購入ボタンを有効化する
+    const displayPrice =
+      p && typeof p.displayPrice === 'string' && p.displayPrice.trim().length > 0
+        ? p.displayPrice
+        : null;
+    if (!displayPrice) {
+      if (productEl) productEl.textContent = '価格を取得できませんでした。通信環境をご確認ください。';
+      if (buy) { buy.disabled = false; buy.dataset.mode = 'retry'; buy.textContent = '再試行'; }
+      return;
+    }
+    if (productEl) {
+      productEl.textContent =
+        `${p && p.displayName ? p.displayName : '全500問 完全版'}（買い切り）: ${displayPrice}`;
+    }
+    if (buy) buy.disabled = false;
+  } catch (_) {
+    if (!document.getElementById('purchase-dialog')) return;
+    if (productEl) productEl.textContent = '価格を取得できませんでした。通信環境をご確認ください。';
+    if (buy) { buy.disabled = false; buy.dataset.mode = 'retry'; buy.textContent = '再試行'; }
+  }
+}
+
+async function _refreshEntitlement(plugin) {
+  try {
+    const r = await _queryEntitlement(plugin);
+    return r.entitled;
+  } catch (_) {
+    // 判定不能時は権限を変更せず、解放宣言もしない（フェイルクローズ）
+    return false;
+  }
+}
+
+async function _doPurchase(plugin) {
+  if (_purchaseBusy) return;
+  _purchaseSetBusy(true);
+  _purchaseSetStatus('処理中です…');
+  try {
+    const res = await plugin.purchase();
+    const state = res && res.state;
+    if (state === 'purchased') {
+      // 解放宣言は verified entitlement の再評価が true のときだけ行う
+      const entitled = await _refreshEntitlement(plugin);
+      _purchaseSetStatus(entitled
+        ? '購入が完了しました。全500問が解放されました。'
+        : '購入は完了しました。反映に時間がかかっています。アプリを再起動すると反映されます。');
+    } else if (state === 'cancelled') {
+      _purchaseSetStatus(''); // キャンセルはエラー扱いしない
+    } else if (state === 'pending') {
+      _purchaseSetStatus('購入は承認待ちです。承認されると自動的に解放されます。');
+    } else {
+      _purchaseSetStatus('購入を完了できませんでした。時間をおいて再試行してください。');
+    }
+  } catch (_) {
+    _purchaseSetStatus('購入を完了できませんでした。通信環境をご確認のうえ再試行してください。');
+  } finally {
+    _purchaseSetBusy(false);
+  }
+}
+
+async function _doRestore(plugin) {
+  if (_purchaseBusy) return;
+  _purchaseSetBusy(true);
+  _purchaseSetStatus('購入情報を確認しています…');
+  try {
+    const res = await plugin.restore();
+    if (res && res.entitled === true) {
+      // 直接 applyEntitlement せず、順序ガード付きの再評価を通して反映する
+      const entitled = await _refreshEntitlement(plugin);
+      _purchaseSetStatus(entitled
+        ? '購入を復元しました。全500問が解放されました。'
+        : '復元は完了しました。反映に時間がかかっています。アプリを再起動すると反映されます。');
+    } else {
+      _purchaseSetStatus('復元対象の購入が見つかりませんでした。');
+    }
+  } catch (err) {
+    const code = err && err.code;
+    if (code === 'RESTORE_THROTTLED' || code === 'RESTORE_IN_PROGRESS') {
+      _purchaseSetStatus('しばらく待ってから再試行してください。');
+    } else {
+      _purchaseSetStatus('復元できませんでした。通信環境をご確認のうえ再試行してください。');
+    }
+  } finally {
+    _purchaseSetBusy(false);
+  }
 }
 
 // ── RESUME DIALOG ──────────────────────────────────────────────────────
@@ -2378,6 +2661,11 @@ document.getElementById('app').addEventListener('click', e => {
     case 'premium-lock':
       showPremiumLock(el.dataset.lockedFeature || '', el);
       break;
+    // iOS DEBUG ビルド専用の課金テスト導線（AppleEntitlement.debugBuild が
+    // true のときだけ home に描画される。Release / Web では到達不能）
+    case 'debug-purchase':
+      showPurchaseDialog();
+      break;
     case 'select-numbers-category':
       // Cycle 3-F: 無料はカテゴリ詳細（全件）へ進ませない（DOM改変による迂回も遮断）。numbersCategory を更新しない
       if (!isPremiumUnlocked()) { showPremiumLock('numbersFull', el); return; }
@@ -2539,3 +2827,5 @@ function showToast(msg) {
 
 // ── INIT ───────────────────────────────────────────────────────────────
 render();
+// iOS のみ: Apple entitlement を起動時に評価（Web 版ではプラグイン不在のため即 return）
+initPremiumStore();

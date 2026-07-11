@@ -40,13 +40,21 @@ public class PremiumStorePlugin: CAPPlugin, CAPBridgedPlugin {
     override public func load() {
         // 起動中に届くトランザクション（Ask to Buy 承認・別端末購入・refund 等）を
         // 常駐処理する。verified のみ finish する。
-        updatesTask = Task.detached(priority: .background) {
+        updatesTask = Task.detached(priority: .background) { [weak self] in
             for await result in Transaction.updates {
                 if case .verified(let tx) = result {
                     // 自プロダクト以外の transaction は消費しない（将来の別ハンドラ用に残す）
                     guard tx.productID == Self.productID else { continue }
+                    // pending 確定（Ask to Buy 承認）・別端末購入・refund / revoke を含む。
+                    // finish 後に正本（currentEntitlements）を再評価して JS へ通知する。
                     Self.log.info("transaction update: verified (finishing)")
                     await tx.finish()
+                    let entitled = await Self.evaluateEntitlement()
+                    Self.log.info("transaction update: entitlement -> \(entitled ? "entitled" : "notEntitled", privacy: .public)")
+                    self?.notifyListeners("entitlementChanged", data: [
+                        "entitled": entitled,
+                        "state": entitled ? "entitled" : "notEntitled",
+                    ])
                 } else {
                     Self.log.warning("transaction update: unverified (ignored, not finished)")
                 }
@@ -83,14 +91,21 @@ public class PremiumStorePlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     /// 現在のエンタイトルメントを Apple の verified transaction から評価して返す。
+    /// debugBuild は iOS DEBUG ビルド判定（課金テスト導線の表示制御用）。
     @objc func getEntitlement(_ call: CAPPluginCall) {
         Task {
             let entitled = await Self.evaluateEntitlement()
+            #if DEBUG
+            let debugBuild = true
+            #else
+            let debugBuild = false
+            #endif
             Self.log.info("getEntitlement: \(entitled ? "entitled" : "notEntitled", privacy: .public)")
             call.resolve([
                 "entitled": entitled,
                 "state": entitled ? "entitled" : "notEntitled",
                 "productId": Self.productID,
+                "debugBuild": debugBuild,
             ])
         }
     }
