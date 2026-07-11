@@ -144,6 +144,9 @@ function applyEntitlement(entitled) {
   // 権限変化時のみ再描画。学習履歴・付箋などの localStorage データには触れない。
   AppleEntitlement.entitled = next;
   render();
+  // 購入ダイアログが開いていれば購入済み/再購入可能の表示を同期する
+  // （refund / revoke 通知で購入可能状態へ戻すのもここ）
+  _updatePurchaseDialogEntitlementUI();
 }
 
 // 順序ガード: 古い照会結果が新しい状態（通知・後発の照会）を上書きしないための
@@ -2321,6 +2324,8 @@ function showPurchaseDialog() {
     <div class="premium-lock-card" style="max-width:320px;width:100%">
       <div class="premium-lock-title" id="purchase-title">全500問 完全版</div>
       <div class="premium-lock-body" id="purchase-product">価格を取得しています…</div>
+      <div class="premium-lock-body" id="purchase-owned"
+        style="display:none;font-weight:700;color:#059669">✓ 購入済みです。全500問が解放されています。</div>
       <div class="premium-lock-note" id="purchase-status" role="status" aria-live="polite"></div>
       <button class="premium-lock-close" type="button" id="purchase-buy"
         style="background:#2563EB;color:#fff;margin-bottom:8px" disabled>購入する</button>
@@ -2351,6 +2356,24 @@ function showPurchaseDialog() {
   });
 
   _loadPurchaseProduct(plugin);
+  _updatePurchaseDialogEntitlementUI();
+}
+
+// 購入済みなら購入ボタンを非表示にして「購入済み」を明示し、
+// refund / revoke で entitlement が失われたら再購入可能な表示へ戻す。
+function _updatePurchaseDialogEntitlementUI() {
+  const dialog = document.getElementById('purchase-dialog');
+  if (!dialog) return;
+  const buy = document.getElementById('purchase-buy');
+  const owned = document.getElementById('purchase-owned');
+  if (!buy || !owned) return;
+  if (AppleEntitlement.entitled) {
+    buy.style.display = 'none';
+    owned.style.display = '';
+  } else {
+    buy.style.display = '';
+    owned.style.display = 'none';
+  }
 }
 
 async function _loadPurchaseProduct(plugin) {
