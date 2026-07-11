@@ -10,3 +10,13 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Node.js
+node_modules/
+
+# Capacitor 生成物（原本はリポジトリルート、www/ は sync:web の出力）
+www/
+
+# Xcode ビルド生成物
+ios/App/build/
+ios/DerivedData/

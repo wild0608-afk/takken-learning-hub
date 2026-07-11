@@ -1,0 +1,17 @@
+{
+  "name": "takken-learning-hub",
+  "version": "1.0.0",
+  "description": "Takken Learning Hub - 宅建試験学習アプリ",
+  "private": true,
+  "scripts": {
+    "sync:web": "node scripts/sync-www.js",
+    "cap:sync": "npm run sync:web && cap sync ios",
+    "ios:open": "cap open ios",
+    "verify:questions": "node verify-questions.js"
+  },
+  "dependencies": {
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "^8.4.1"
+  }
+}
