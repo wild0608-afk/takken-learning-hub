@@ -120,7 +120,7 @@ function isFreeQuestion(question) {
 const PREMIUM_UNLOCKED = false;
 
 // BETA ONLY: Set to false before paid release or replace with StoreKit entitlement.
-const BETA_UNLOCK_ALL = true;
+const BETA_UNLOCK_ALL = false;
 
 // ── PREMIUM STORE (iOS StoreKit 2) ─────────────────────────────────────
 // 購入権限の正本は Apple の verified transaction（ネイティブ側 PremiumStore
