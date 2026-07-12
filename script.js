@@ -703,7 +703,7 @@ function renderHome() {
           <span style="font-size:30px;line-height:1">🏠</span>
         </div>
         <div class="home-hero-titles">
-          <div class="home-title">Takken Learning Hub</div>
+          <div class="home-title">宅建500問</div>
           <div class="home-subtitle">宅建試験の合格を、ここから一緒に。</div>
         </div>
         <div class="home-hero-bell" aria-hidden="true">🔔</div>
